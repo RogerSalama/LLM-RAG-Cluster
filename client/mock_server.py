@@ -8,7 +8,7 @@ app = FastAPI()
 @app.post("/query")
 async def handle_query(payload: dict):
     # Simulates a fast response so Locust can easily scale up
-    return {"status": "success", "echo": payload.get("query")}
+    return {"status": "success", "message": "Mock response received"}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

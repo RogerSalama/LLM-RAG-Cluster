@@ -2,6 +2,7 @@
 import subprocess
 import time
 import sys
+import os
 
 # Define how many CPU cores you want to use
 NUM_WORKERS = 4
@@ -9,8 +10,19 @@ NUM_WORKERS = 4
 
 def start_locust_cluster():
     print("Starting Locust Master...")
-    # Start the master process
-    master_process = subprocess.Popen(["locust", "-f", "load_generator.py", "--master"])
+
+    # 1. Dynamically grab the absolute path to your project root (LLM-RAG-Cluster)
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    # 2. Copy the current system environment variables and inject our project root
+    custom_env = os.environ.copy()
+    custom_env["PYTHONPATH"] = project_root
+
+    # 3. Start the master process (Note: pointing to locustfile.py AND passing env)
+    master_process = subprocess.Popen(
+        ["locust", "-f", "load_generator.py", "--master"],
+        env=custom_env
+    )
 
     # Give the master a second to boot up before connecting workers
     time.sleep(2)
@@ -19,7 +31,10 @@ def start_locust_cluster():
     print(f"Starting {NUM_WORKERS} Locust Workers...")
     # Loop to start the worker processes
     for i in range(NUM_WORKERS):
-        p = subprocess.Popen(["locust", "-f", "load_generator.py", "--worker"])
+        p = subprocess.Popen(
+            ["locust", "-f", "load_generator.py", "--worker"],
+            env=custom_env
+        )
         worker_processes.append(p)
         print(f"Worker {i + 1} started.")
 
