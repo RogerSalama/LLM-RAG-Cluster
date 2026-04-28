@@ -1,25 +1,57 @@
-# workers/gpu_worker.py
+# # workers/gpu_worker.py
+# import time
+# from llm.inference import run_llm
+# from rag.retriever import retrieve_context
+
+# class GPUWorker:
+#     def __init__(self, id):
+#         self.id = id
+
+#     def process(self, request):
+#         start = time.time()
+#         print(f"[Worker {self.id}] Processing request {request.id}")
+        
+#         # RAG Step
+#         context = retrieve_context(request.query)
+        
+#         # LLM Step
+#         result = run_llm(request.query, context)
+        
+#         latency = time.time() - start
+#         return {
+#             "id": request.id,
+#             "result": result,
+#             "latency": latency
+#         }
+
 import time
-from llm.inference import run_llm
-from rag.retriever import retrieve_context
+import uvicorn
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
 
-class GPUWorker:
-    def __init__(self, id):
-        self.id = id
+# Initialize the FastAPI application
+app = FastAPI(title="GPU Worker Node (Dummy)")
+class IncomingRequest(BaseModel):
+    id: int
+    query: str
+# Create the single /process endpoint
+@app.post("/process")
+def process_task(request: Request):
+    print(f"[Worker] Received Task {request.id}: {request.query}")
+    
+    # Simulate the heavy GPU inference and RAG retrieval delay
+    time.sleep(2)
+    
+    # Return the dummy response (FastAPI automatically converts this to JSON)
+    return {
+        "status": "Task Complete",
+        "id": request.id, 
+        "latency": 2.0,
+        #"message": "Dummy LLM response successful."
+    }
 
-    def process(self, request):
-        start = time.time()
-        print(f"[Worker {self.id}] Processing request {request.id}")
-        
-        # RAG Step
-        context = retrieve_context(request.query)
-        
-        # LLM Step
-        result = run_llm(request.query, context)
-        
-        latency = time.time() - start
-        return {
-            "id": request.id,
-            "result": result,
-            "latency": latency
-        }
+if __name__ == "__main__":
+    # Binding to 0.0.0.0 allows it to accept traffic from ZeroTier
+    # Port 8000 is where this specific worker will listen
+    print("Starting GPU Worker Node...")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
