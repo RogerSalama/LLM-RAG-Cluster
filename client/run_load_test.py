@@ -19,9 +19,12 @@ def start_locust_cluster():
     custom_env["PYTHONPATH"] = project_root
 
     # 3. Start the master process (Note: pointing to locustfile.py AND passing env)
+    locustfile_path = os.path.join(project_root, "client", "load_generator.py")
+
     master_process = subprocess.Popen(
-        ["locust", "-f", "load_generator.py", "--master"],
-        env=custom_env
+        ["locust", "-f", locustfile_path, "--master"],
+        env=custom_env,
+        cwd=project_root,
     )
 
     # Give the master a second to boot up before connecting workers
@@ -32,8 +35,9 @@ def start_locust_cluster():
     # Loop to start the worker processes
     for i in range(NUM_WORKERS):
         p = subprocess.Popen(
-            ["locust", "-f", "load_generator.py", "--worker"],
-            env=custom_env
+            ["locust", "-f", locustfile_path, "--worker"],
+            env=custom_env,
+            cwd=project_root,
         )
         worker_processes.append(p)
         print(f"Worker {i + 1} started.")
