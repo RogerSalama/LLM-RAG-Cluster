@@ -26,20 +26,21 @@
 
 import time
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
-from rag.retriever import RAGRetriever
 from rag.retriever import retrieve_context
 from llm.inference import run_llm
 
 # Initialize the FastAPI application
 app = FastAPI(title="GPU Worker Node (Dummy)")
+
 class IncomingRequest(BaseModel):
     id: int
     query: str
+
 # Create the single /process endpoint
 @app.post("/process")
-def process_task(request: Request):
+def process_task(request: IncomingRequest):
     print(f"[Worker] Received Task {request.id}: {request.query}")
     
     context = retrieve_context(request.query)
@@ -49,7 +50,7 @@ def process_task(request: Request):
     # Return the dummy response (FastAPI automatically converts this to JSON)
     return {
         "status": "Task Complete",
-        "id": request.id, 
+        "id": request.id,
         "latency": 2.0,
         "result": result
     }

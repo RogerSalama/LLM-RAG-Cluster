@@ -36,7 +36,7 @@ class RAGRetriever:
         if not all_documents:
             print("[ERROR] No PDF or MD files found in the data directory!")
             # Adding a placeholder to prevent FAISS from crashing on an empty list
-            from langchain.docstore.document import Document
+            from langchain_core.documents import Document
             all_documents = [Document(page_content="The knowledge base is currently empty.")]
 
         # 3. Split text into chunks
