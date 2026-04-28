@@ -28,6 +28,9 @@ import time
 import uvicorn
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
+from rag.retriever import RAGRetriever
+from rag.retriever import retrieve_context
+from llm.inference import run_llm
 
 # Initialize the FastAPI application
 app = FastAPI(title="GPU Worker Node (Dummy)")
@@ -39,15 +42,16 @@ class IncomingRequest(BaseModel):
 def process_task(request: Request):
     print(f"[Worker] Received Task {request.id}: {request.query}")
     
-    # Simulate the heavy GPU inference and RAG retrieval delay
-    time.sleep(2)
+    context = retrieve_context(request.query)
+
+    result = run_llm(request.query, context)
     
     # Return the dummy response (FastAPI automatically converts this to JSON)
     return {
         "status": "Task Complete",
         "id": request.id, 
         "latency": 2.0,
-        #"message": "Dummy LLM response successful."
+        "result": result
     }
 
 if __name__ == "__main__":
