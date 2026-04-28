@@ -1,5 +1,5 @@
 # main.py
-from workers.gpu_worker import GPUWorker
+from workers import gpu_worker
 from lb.load_balancer import LoadBalancer
 from master.scheduler import Scheduler
 from client.load_generator import run_load_test
@@ -17,7 +17,7 @@ def main():
     
     # # Run simulation
     # run_load_test(scheduler, num_users=1000)
-    query_1 = "what is utilization rule"
+    query_1 = "what is mongoose"
     context_1 = retrieve_context(query_1)
 
     print(f"Query: {query_1}")
@@ -25,7 +25,7 @@ def main():
     print("-" * 30)
 
     # Test Query 2: Something NOT in the PDF
-    query_2 = "how do cluster computing work"
+    query_2 = "what is nano banana"
     context_2 = retrieve_context(query_2)
 
     print(f"Query: {query_2}")
