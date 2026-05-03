@@ -18,6 +18,7 @@ WORKER_NODES = [
 # The live scorecard
 worker_health = {node: {"active_requests": 0, "gpu_usage": 0, "temperature": 0, "alive": True} for node in WORKER_NODES}
 
+
 async def check_worker_health():
     """Background task: Polls workers every 2 seconds to update the scorecard."""
     async with httpx.AsyncClient(timeout=1.0) as client:
@@ -41,6 +42,7 @@ async def check_worker_health():
 async def startup_event():
     # Start the background health checker when the balancer boots
     asyncio.create_task(check_worker_health())
+
 
 def get_best_worker():
     """The Load-Aware Routing Algorithm."""
