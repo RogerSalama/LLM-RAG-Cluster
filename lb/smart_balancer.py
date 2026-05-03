@@ -19,6 +19,45 @@ WORKER_NODES = [
 worker_health = {node: {"active_requests": 0, "gpu_usage": 0, "temperature": 0, "alive": True} for node in WORKER_NODES}
 
 
+def print_leaderboard():
+    """Prints a clean ASCII dashboard of the cluster's current state."""
+    print("\n" + "="*57)
+    print(f"{'🏆 CLUSTER HEALTH LEADERBOARD 🏆':^57}")
+    print("="*57)
+    print(f"{'Worker Node':<20} | {'Status':<6} | {'Reqs':<4} | {'GPU':<4} | {'Temp':<4}")
+    print("-" * 57)
+    
+    # Sort the leaderboard exactly how the load balancer sorts them!
+    # Alive laptops first, then lowest requests, then lowest GPU.
+    sorted_nodes = sorted(
+        worker_health.keys(),
+        key=lambda n: (
+            not worker_health[n]["alive"], # False (0) sorts before True (1)
+            worker_health[n]["active_requests"], 
+            worker_health[n]["gpu_usage"]
+        )
+    )
+    
+    for node in sorted_nodes:
+        stats = worker_health[node]
+        status = "🟢 UP" if stats["alive"] else "🔴 DOWN"
+        
+        # Clean up the IP string for a prettier display
+        ip = node.replace("http://", "").replace(":8000", "")
+        
+        if stats["alive"]:
+            # Check if thermal throttling
+            temp_display = f"{stats['temperature']}°C"
+            if stats["temperature"] >= 85:
+                temp_display = f"🔥{stats['temperature']}C"
+                
+            print(f"{ip:<20} | {status:<6} | {stats['active_requests']:<4} | {stats['gpu_usage']:>2}% | {temp_display:>4}")
+        else:
+            print(f"{ip:<20} | {status:<6} | {'-':<4} | {'-':<4} | {'-':<4}")
+            
+    print("="*57 + "\n")
+
+
 async def check_worker_health():
     """Background task: Polls workers every 2 seconds to update the scorecard."""
     async with httpx.AsyncClient(timeout=1.0) as client:
@@ -36,6 +75,7 @@ async def check_worker_health():
                     worker_health[node]["alive"] = False
                     print(f"[Warning] Worker {node} is DOWN.")
             
+            print_leaderboard()
             await asyncio.sleep(2) # Wait 2 seconds before checking again
 
 @app.on_event("startup")
