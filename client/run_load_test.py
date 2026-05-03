@@ -22,7 +22,8 @@ def start_locust_cluster():
     locustfile_path = os.path.join(project_root, "client", "load_generator.py")
 
     master_process = subprocess.Popen(
-        ["locust", "-f", locustfile_path, "--master"],
+        # Replace "locust" with sys.executable and "-m", "locust"
+        [sys.executable, "-m", "locust", "-f", locustfile_path, "--master"],
         env=custom_env,
         cwd=project_root,
     )
@@ -35,7 +36,7 @@ def start_locust_cluster():
     # Loop to start the worker processes
     for i in range(NUM_WORKERS):
         p = subprocess.Popen(
-            ["locust", "-f", locustfile_path, "--worker"],
+            [sys.executable, "-m", "locust", "-f", locustfile_path, "--worker"],
             env=custom_env,
             cwd=project_root,
         )

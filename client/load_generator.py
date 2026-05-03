@@ -30,7 +30,7 @@ class RAGUser(HttpUser):
         request_id = next(request_counter)
 
         # Instantiate the Request model (I also added the ID to the query string for easier tracking!)
-        request_data = Request(id=request_id, query=f"Sample LLM RAG Query {request_id}")
+        request_data = Request(id=request_id, query=f"hi")
 
         # Convert the dataclass instance to a dictionary for the POST request
         payload = asdict(request_data)
