@@ -7,11 +7,11 @@ app = FastAPI(title="Smart Load-Aware Balancer")
 
 # List your ZeroTier Worker IPs here
 WORKER_NODES = [
-    "http://10.2.213.82:8000", #Seif
+    #"http://10.2.213.82:8000", #Seif
     "http://10.2.213.176:8000",#Sallam
     "http://10.2.213.8:8000",  #Ashraf
     "http://10.2.213.91:8000", #Roger
-    #"http://10.2.213.81:8000", #Andrew
+    "http://10.2.213.81:8000", #Andrew
     # Add your other laptops here
 ]
 
@@ -111,10 +111,10 @@ def get_best_worker():
 async def route_traffic(request: Request):
     """Intercepts traffic from Locust and forwards it to the best worker."""
     best_node = get_best_worker()
-    
+
     # Extract the JSON payload sent by Locust
     payload = await request.json()
-    
+
     # Forward the request to the chosen worker
     async with httpx.AsyncClient(timeout=60.0) as client:
         try:
@@ -126,4 +126,4 @@ async def route_traffic(request: Request):
 if __name__ == "__main__":
     print("Starting Smart Load Balancer on Port 80...")
     # Run on Port 80 so Locust can easily find it
-    uvicorn.run(app, host="0.0.0.0", port=80)
+    uvicorn.run(app, host="0.0.0.0", port=80, log_level="error", limit_concurrency=2000, backlog=4096)
