@@ -1,12 +1,9 @@
-# client/run_load_test.py
-import subprocess
-import time
-import sys
 import os
+import sys
+import time
+import subprocess
 
-# Define how many CPU cores you want to use
 NUM_WORKERS = 4
-
 
 def start_locust_cluster():
     print("Starting Locust Master...")
@@ -23,7 +20,7 @@ def start_locust_cluster():
 
     master_process = subprocess.Popen(
         # Replace "locust" with sys.executable and "-m", "locust"
-        [sys.executable, "-m", "locust", "-f", locustfile_path, "--master"],
+        [sys.executable, "-m", "locust", "-f", locustfile_path, "--master", "--stop-timeout", "300"],
         env=custom_env,
         cwd=project_root,
     )
@@ -56,7 +53,6 @@ def start_locust_cluster():
         for w in worker_processes:
             w.terminate()
         sys.exit(0)
-
 
 if __name__ == "__main__":
     start_locust_cluster()
